@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Delhi Metro Map (Vertically Flipped)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="left-buttons">
+            <button class="header-button" id="Login">Login</button>
+            <button class="header-button" id="Show-Map">Show Metro Map</button>
+            <button class="header-button">Station Details</button>
+            <button class="header-button">Station Facilities</button>
+            <button class="header-button">Packing Facilities</button>
+            <button class="header-button">Platform</button>
+        </div>
+        <div id="result-buttons">
+            <button type="button" class="btn btn-primary btn-lg px-4 gap-3" fdprocessedid="72rl9h" id="shortest-path-btn">Shortest Path Search</button>
+            <button type="button" class="btn btn-outline-secondary btn-lg px-4" fdprocessedid="pmee9p" id="min-interchange-btn">Minimum Interchange Search</button>
+        </div>
+    </header>
+    <div class="body">
+        <div id="home-container">
+            <img id= "image" src="pngwing.com.png" alt="dmrc_logo" />
+            <h1 style="color: whitesmoke;">Welcome to the Delhi Metro Map</h1>
+            <div class="dropdown-container">
+                <label style="color: whitesmoke;" for="source">Source Metro Station:</label>
+                <select id="source" name="source">
+                    <option value="">-- Select Source --</option>
+                    </select>
+            </div>
+            <div class="dropdown-container">
+                <label style="color: whitesmoke;" for="destination">Destination Metro Station:</label>
+                <select id="destination" name="destination">
+                    <option value="">-- Select Destination --</option>
+                </select>
+            </div>
+            <button id="search-button">Search Route</button>
+        </div>
+    </div>
+
+    <div id="map-area">
+        <div id="metro-map-container">
+            <div id="metro-map"></div>
+        </div>
+        <div id="Search-Result" style="text-align: center;">
+            <h1 class="display-5 fw-bold text-body-emphasis" id="path-heading"></h1>
+            <div class="col-lg-6 mx-auto">
+                <h3>From - <span id="source_station"></span> &#8651 To - <span id = "destination_station"></span></h3>
+                <p>Total distance: <span id="total-distance"></span> km</p>
+                <p id="total-interchanges-result" style="display: none;">Total interchanges: <span id="total-interchanges"></span></p>
+                <p>Total time taken: <span id="total-time"></span> min</p>
+                <p>Total fare: Rs <span id="total-fare"></span></p>
+            </div>
+        </div>
+    </div>
+    
+  <script src="app.js"></script>
+
+</body>
+</html>
