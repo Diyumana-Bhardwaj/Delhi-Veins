@@ -51,9 +51,16 @@ Create a real-time metro route pathfinder to visualize Dijkstra's Algorithm. The
 ### Station Selection
 <img src="assets/dropdown-selection.jpg" width="70%" alt="Dropdown selection"/>
 
+### Metro Map Design
+<img src="assets/metro-map.jpg" width="70%" alt="Metro Map"/>
+
 ### 🔄 Minimum Exchange Visualization
 <img src="assets/minimum-exchange.jpg" width="70%" alt="Minimum Exchange"/>
 
-### Metro Map Design
-<img src="assets/metro-map.jpg" width="70%" alt="Metro Map"/>
+---
+## 🔗 Related LinkedIn Post
+
+> ✨ “What began as a mini-project turned into a metro-sized journey.”  
+> Read the full story behind building **Delhi Veins** on LinkedIn:  
+**[🔗 Click to read](https://www.linkedin.com/in/diyumana-bhardwaj)**
 
