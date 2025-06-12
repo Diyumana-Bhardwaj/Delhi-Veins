@@ -62,5 +62,5 @@ Create a real-time metro route pathfinder to visualize Dijkstra's Algorithm. The
 
 > ✨ “What began as a mini-project turned into a metro-sized journey.”  
 > Read the full story behind building **Delhi Veins** on LinkedIn:  
-**[🔗 Click to read](https://www.linkedin.com/in/diyumana-bhardwaj)**
+**[🔗 Click to read](https://www.linkedin.com/posts/diyumana-bhardwaj_dsa-dsainreallife-learnwithfun-activity-7334260088481730560-hkjp?utm_source=share&utm_medium=member_desktop&rcm=ACoAAESuVMMBVZc_3wpWPqClK3GIK4xugcX6uHU)**
 
