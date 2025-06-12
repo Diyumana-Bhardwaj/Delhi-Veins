@@ -9,23 +9,22 @@
 
 ---
 
-## 📌 Project Highlights
+## Project Highlights
 
 - 🔁 **Shortest Path Finder:** Implements Dijkstra’s algorithm to calculate the minimum number of stations.
-- 🔄 **Minimum Line Exchange Path:** Uses BFS to compute paths with the least metro line changes.
-- 🗺️ **Real Map Rendering:** GUI built with **SFML**, using true station coordinates.
-- 🧮 **Fare & Distance Calculator:** Computes approximate travel cost based on station hops.
+- 🔄 **Minimum Line Exchange Path:** Uses Modified Dijkstra's to compute paths with the least metro line changes.
+- 🗺️ **Real Map Rendering:** GUI built with **html**,**CSS** and **javascript**, using true station coordinates.
+- 🧮 **Fare & Distance Calculator:** Computes approximate travel cost based on station hops.(approximation fare) 
 - 📂 **Custom Dataset:** Curated and cleaned Delhi Metro data from scratch using ChatGPT and external geolocation sources.
-- 🌐 **Web-ready Data:** Terminal version upgraded to a graphical one with full **httplib** integration in the web version.
+- 🌐 **Logic - integrated** Terminal version written in **C++** upgraded to a graphical one with full **httplib** integration in the web version.
 
 ---
 
-## 🧠 Project Overview
 
-### 🧾 Problem Statement
-Create a real-time metro route pathfinder that simulates Delhi Metro’s functioning with visual clarity and algorithmic accuracy.
+### Problem Statement
+Create a real-time metro route pathfinder to visualize Dijkstra's Algorithm. The project simulates Delhi Metro’s functioning with visual clarity and algorithmic accuracy.
 
-### 🎯 Objectives
+### Objectives
 - Visualize metro stations and routes accurately
 - Find optimal travel paths with respect to:
   - Shortest travel (least stations)
@@ -40,12 +39,18 @@ Create a real-time metro route pathfinder that simulates Delhi Metro’s functio
 | Domain               | Tools / Technologies                            |
 |----------------------|--------------------------------------------------|
 | Programming Language | C++, JavaScript (web version)                   |
-| GUI Framework        | SFML (Simple and Fast Multimedia Library)       |
+| GUI Framework        | HTML, CSS       |
 | Algorithms           | Dijkstra’s Algorithm, BFS                       |
 | Backend (Web ver.)   | `httplib` (C++ HTTP Server Client Library)      |
 | Data Format          | CSV (for stations & connections)                |
 
 ---
 
-## 📂 Folder Structure
+## Project Glimpse
+
+### Station Selection
+<img src="assets/dropdown-selection.png" width="70%" alt="Dropdown selection"/>
+
+### Metro Map Visualization
+<img src="assets/metro-map-colored.png" width="70%" alt="Metro Map"/>
 
