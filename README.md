@@ -52,8 +52,8 @@ Create a real-time metro route pathfinder to visualize Dijkstra's Algorithm. The
 <img src="assets/dropdown-selection.jpg" width="70%" alt="Dropdown selection"/>
 
 ### 🔄 Minimum Exchange Visualization
-<img src="assets/exchange-path.png" width="70%" alt="Minimum Exchange"/>
+<img src="assets/minimum-exchange.jpg" width="70%" alt="Minimum Exchange"/>
 
 ### Metro Map Design
-<img src="assets/minimum-exchange.jpg" width="70%" alt="Metro Map"/>
+<img src="assets/metro-map.jpg" width="70%" alt="Metro Map"/>
 
