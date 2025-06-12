@@ -4,7 +4,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/delhi-banner.png" width="80%" alt="Delhi Veins Banner"/>
+  <img src="assets/dashboard.png" width="80%" alt="Delhi Veins Banner"/>
 </p>
 
 ---
@@ -49,8 +49,11 @@ Create a real-time metro route pathfinder to visualize Dijkstra's Algorithm. The
 ## Project Glimpse
 
 ### Station Selection
-<img src="assets/dropdown-selection.png" width="70%" alt="Dropdown selection"/>
+<img src="assets/dropdown-selection.jpg" width="70%" alt="Dropdown selection"/>
 
-### Metro Map Visualization
-<img src="assets/metro-map-colored.png" width="70%" alt="Metro Map"/>
+### 🔄 Minimum Exchange Visualization
+<img src="assets/exchange-path.png" width="70%" alt="Minimum Exchange"/>
+
+### Metro Map Design
+<img src="assets/minimum-exchange.jpg" width="70%" alt="Metro Map"/>
 
