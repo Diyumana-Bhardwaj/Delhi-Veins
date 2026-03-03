@@ -1,19 +1,23 @@
-// g++ main.cpp -o metro_backend -std=c++17 -pthread -lws2_32 -I./include
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include <list>
 #include <tuple>
 #include <fstream>
 #include <sstream>
 #include <queue>
 #include <limits>
-#include <set>
 #include <algorithm>
 #include <httplib.h>
 #include <nlohmann/json.hpp>
+#include <mutex>
+
+size_t cacheCapacity = 1000;
 
 using json = nlohmann::json;
 using namespace std;
+
+mutex cacheMutex;
 
 struct Connection {
     string station;
@@ -21,9 +25,23 @@ struct Connection {
     string lineColor;
 };
 
+struct Edge {
+    int to;
+    double weight;
+    int lineId;
+};
+
+
 class MetroGraph {
 public:
     unordered_map<string, vector<Connection>> adjList;
+    unordered_map<string, int> stationToId;
+    vector<string> idToStation;
+    vector<vector<Edge>> adjInt;
+    unordered_map<string, int> lineToId;
+    vector<string> idToLine;
+    list<string> lruList;  // Most recent at front
+    unordered_map<string, pair<json, list<string>::iterator>> routeCache;
 
     void trim(string &s) {
         s.erase(s.begin(), find_if(s.begin(), s.end(), [](unsigned char ch) { return !isspace(ch); }));
@@ -66,171 +84,280 @@ public:
         file.close();
     }
 
-    json findShortestPathJSON(string source, string destination) {
+    void buildIntegerGraph() {
+        stationToId.clear();
+        idToStation.clear();
+        adjInt.clear();
+        lineToId.clear();
+        idToLine.clear();
+
+
+        int stationId = 0;
+        int lineIdCounter = 0;
+
+        for (auto& station : adjList) {
+            stationToId[station.first] = stationId++;
+            idToStation.push_back(station.first);
+        }
+
+        adjInt.resize(stationId);
+
+        for (auto& station : adjList) {
+            int fromId = stationToId[station.first];
+
+            for (auto& neighbor : station.second) {
+                if (!lineToId.count(neighbor.lineColor)) {
+                    lineToId[neighbor.lineColor] = lineIdCounter++;
+                    idToLine.push_back(neighbor.lineColor);
+                }
+                int toId = stationToId[neighbor.station];
+                int lineId = lineToId[neighbor.lineColor];
+
+                adjInt[fromId].push_back({toId, neighbor.distance, lineId});
+            }
+        }
+        adjList.clear();
+        adjList.rehash(0);
+
+    }
+
+    json findShortestPathOptimized(const string& source, const string& destination) {
+        string cacheKey = "shortest|" + source + "|" + destination;
+
+        {
+            lock_guard<mutex> lock(cacheMutex);
+
+            auto it = routeCache.find(cacheKey);
+            if (it != routeCache.end()) {
+                // Move key to front (most recently used)
+                lruList.erase(it->second.second);
+                lruList.push_front(cacheKey);
+                it->second.second = lruList.begin();
+
+                return it->second.first;
+            }
+        }
+
+
+
         json result;
-        if (adjList.find(source) == adjList.end() || adjList.find(destination) == adjList.end()) {
+
+        if (!stationToId.count(source) || !stationToId.count(destination)) {
             result["error"] = "Error: One or both stations not found!";
             return result;
         }
 
-        unordered_map<string, double> minDistance;
-        unordered_map<string, string> prevStation;
-        unordered_map<string, string> lineForPrev;
-        priority_queue<pair<double, string>, vector<pair<double, string>>, greater<>> pq;
+        int sourceId = stationToId[source];
+        int destId = stationToId[destination];
 
-        for (auto& station : adjList) {
-            minDistance[station.first] = numeric_limits<double>::infinity();
+        int n = adjInt.size();
+        thread_local vector<double> dist;
+        thread_local vector<int> parent;
+
+        if (dist.size() != n) {
+            dist.resize(n);
+            parent.resize(n);
         }
 
-        minDistance[source] = 0;
-        pq.push({0, source});
+        fill(dist.begin(), dist.end(), numeric_limits<double>::infinity());
+        fill(parent.begin(), parent.end(), -1);
+
+
+        priority_queue<pair<double,int>, vector<pair<double,int>>, greater<>> pq;
+
+        dist[sourceId] = 0;
+        pq.push({0, sourceId});
 
         while (!pq.empty()) {
-            string current = pq.top().second;
-            double currDist = pq.top().first;
+            auto [currDist, u] = pq.top();
             pq.pop();
 
-            if (current == destination) break;
+            if (currDist > dist[u]) continue;
+            if (u == destId) break;
 
-            for (auto& neighbor : adjList[current]) {
-                double newDist = currDist + neighbor.distance;
-                if (newDist < minDistance[neighbor.station]) {
-                    minDistance[neighbor.station] = newDist;
-                    prevStation[neighbor.station] = current;
-                    lineForPrev[neighbor.station] = neighbor.lineColor;
-                    pq.push({newDist, neighbor.station});
+            for (auto& edge : adjInt[u]) {
+                int v = edge.to;
+                double newDist = currDist + edge.weight;
+
+                if (newDist < dist[v]) {
+                    dist[v] = newDist;
+                    parent[v] = u;
+                    pq.push({newDist, v});
                 }
             }
         }
 
-        if (prevStation.find(destination) == prevStation.end()) {
+        if (dist[destId] == numeric_limits<double>::infinity()) {
             result["error"] = "Error: No path found!";
             return result;
         }
 
         vector<string> path;
-        vector<string> lines;
-        string track = destination;
-
-        while (track != source) {
-            path.push_back(track);
-            if (prevStation.count(track)) {
-                lines.push_back(lineForPrev[track]);
-                track = prevStation[track];
-            } else {
-                result["error"] = "Error reconstructing path!";
-                return result;
-            }
+        for (int at = destId; at != -1; at = parent[at]) {
+            path.push_back(idToStation[at]);
         }
-
-        path.push_back(source);
         reverse(path.begin(), path.end());
-        reverse(lines.begin(), lines.end());
 
         result["path"] = path;
-        result["total_distance"] = minDistance[destination];
-        result["lines"] = lines;
+        result["total_distance"] = dist[destId];
+
+        {
+            lock_guard<mutex> lock(cacheMutex);
+
+            // If already exists (rare but safe)
+            if (routeCache.count(cacheKey)) {
+                lruList.erase(routeCache[cacheKey].second);
+            }
+            else if (routeCache.size() >= cacheCapacity) {
+                // Remove least recently used
+                string lruKey = lruList.back();
+                lruList.pop_back();
+                routeCache.erase(lruKey);
+            }
+
+            lruList.push_front(cacheKey);
+            routeCache[cacheKey] = {result, lruList.begin()};
+        }
+
+
         return result;
     }
 
-    json findMinimumExchangesJSON(string source, string destination) {
+
+    json findMinimumExchangesOptimized(const string& source, const string& destination) {
+        string cacheKey = "exchange|" + source + "|" + destination;
+        {
+            lock_guard<mutex> lock(cacheMutex);
+
+            auto it = routeCache.find(cacheKey);
+            if (it != routeCache.end()) {
+                // Move key to front (most recently used)
+                lruList.erase(it->second.second);
+                lruList.push_front(cacheKey);
+                it->second.second = lruList.begin();
+
+                return it->second.first;
+            }
+        }
+
+
+
         json result;
-        if (adjList.find(source) == adjList.end() || adjList.find(destination) == adjList.end()) {
+
+        if (!stationToId.count(source) || !stationToId.count(destination)) {
             result["error"] = "Error: One or both stations not found!";
             return result;
         }
 
+        int sourceId = stationToId[source];
+        int destId = stationToId[destination];
+
         struct Node {
-            string station;
+            int station;
             int lineChanges;
             double distance;
-            string lineColor;
+            int lineId;
         };
 
         struct Compare {
-            bool operator()(const Node &a, const Node &b) {
+            bool operator()(const Node& a, const Node& b) {
                 if (a.lineChanges == b.lineChanges)
                     return a.distance > b.distance;
                 return a.lineChanges > b.lineChanges;
             }
         };
 
-        priority_queue<Node, vector<Node>, Compare> pq;
-        unordered_map<string, pair<int, double>> bestPath;
-        unordered_map<string, tuple<string, string>> prevNode;
+        int n = adjInt.size();
+        vector<pair<int,double>> best(n, {INT_MAX, numeric_limits<double>::infinity()});
+        vector<int> parent(n, -1);
 
-        pq.push({source, 0, 0.0, ""});
-        bestPath[source] = {0, 0.0};
+        priority_queue<Node, vector<Node>, Compare> pq;
+
+        pq.push({sourceId, 0, 0.0, -1});
+        best[sourceId] = {0, 0.0};
 
         while (!pq.empty()) {
             Node current = pq.top();
             pq.pop();
 
-            if (current.station == destination) break;
+            if (current.lineChanges > best[current.station].first ||
+                (current.lineChanges == best[current.station].first &&
+                current.distance > best[current.station].second))
+                continue;
 
-            for (auto &neighbor : adjList[current.station]) {
-                int newLineChanges = current.lineChanges + ((current.lineColor == "" || current.lineColor == neighbor.lineColor) ? 0 : 1);
-                double newDistance = current.distance + neighbor.distance;
+            if (current.station == destId) break;
 
-                if (bestPath.find(neighbor.station) == bestPath.end() ||
-                    newLineChanges < bestPath[neighbor.station].first ||
-                    (newLineChanges == bestPath[neighbor.station].first && newDistance < bestPath[neighbor.station].second)) {
+            for (auto& edge : adjInt[current.station]) {
 
-                    bestPath[neighbor.station] = {newLineChanges, newDistance};
-                    prevNode[neighbor.station] = make_tuple(current.station, neighbor.lineColor);
-                    pq.push({neighbor.station, newLineChanges, newDistance, neighbor.lineColor});
+                int newLineChanges = current.lineChanges +
+                    ((current.lineId == -1 || current.lineId == edge.lineId) ? 0 : 1);
+
+                double newDistance = current.distance + edge.weight;
+
+                if (newLineChanges < best[edge.to].first ||
+                (newLineChanges == best[edge.to].first &&
+                    newDistance < best[edge.to].second)) {
+
+                    best[edge.to] = {newLineChanges, newDistance};
+                    parent[edge.to] = current.station;
+
+                    pq.push({edge.to, newLineChanges, newDistance, edge.lineId});
                 }
             }
         }
 
-        if (bestPath.find(destination) == bestPath.end()) {
+        if (best[destId].first == INT_MAX) {
             result["error"] = "Error: No path found!";
             return result;
         }
 
-        if (source != destination && prevNode.find(destination) == prevNode.end()) {
-            result["error"] = "Error reconstructing path!";
-            return result;
-        }
-
         vector<string> path;
-        vector<string> lines;
-        string current = destination;
-
-        while (current != source) {
-            path.push_back(current);
-            if (prevNode.count(current)) {
-                lines.push_back(get<1>(prevNode[current]));
-                current = get<0>(prevNode[current]);
-            } else {
-                result["error"] = "Error reconstructing path!";
-                return result;
-            }
+        for (int at = destId; at != -1; at = parent[at]) {
+            path.push_back(idToStation[at]);
         }
-
-        path.push_back(source);
         reverse(path.begin(), path.end());
-        reverse(lines.begin(), lines.end());
 
         result["path"] = path;
-        result["total_line_changes"] = bestPath[destination].first;
-        result["total_distance"] = bestPath[destination].second;
-        result["lines"] = lines;
+        result["total_line_changes"] = best[destId].first;
+        result["total_distance"] = best[destId].second;
+
+        {
+            lock_guard<mutex> lock(cacheMutex);
+
+            // If already exists (rare but safe)
+            if (routeCache.count(cacheKey)) {
+                lruList.erase(routeCache[cacheKey].second);
+            }
+            else if (routeCache.size() >= cacheCapacity) {
+                // Remove least recently used
+                string lruKey = lruList.back();
+                lruList.pop_back();
+                routeCache.erase(lruKey);
+            }
+
+            lruList.push_front(cacheKey);
+            routeCache[cacheKey] = {result, lruList.begin()};
+        }
+
         return result;
     }
+
 };
 
 int main() {
     MetroGraph metro;
-    metro.loadFromFile("Delhi_Metro_Lines.csv");
+    metro.loadFromFile("public/dataset/Delhi_Metro_Lines.csv");
+    metro.buildIntegerGraph();
 
     httplib::Server svr;
+    svr.set_mount_point("/", "./public");
+
 
     svr.Get("/shortest_path", [&](const httplib::Request& req, httplib::Response& res) {
         if (req.has_param("source") && req.has_param("destination")) {
             string source = req.get_param_value("source");
             string destination = req.get_param_value("destination");
-            json result = metro.findShortestPathJSON(source, destination);
+            json result = metro.findShortestPathOptimized(source, destination);
             res.set_header("Access-Control-Allow-Origin", "*");
             res.set_content(result.dump(4), "application/json");
         } else {
@@ -243,7 +370,7 @@ int main() {
         if (req.has_param("source") && req.has_param("destination")) {
             string source = req.get_param_value("source");
             string destination = req.get_param_value("destination");
-            json result = metro.findMinimumExchangesJSON(source, destination);
+            json result = metro.findMinimumExchangesOptimized(source, destination);
             res.set_header("Access-Control-Allow-Origin", "*");
             res.set_content(result.dump(4), "application/json");
         } else {
@@ -253,6 +380,7 @@ int main() {
     });
 
     cout << "Server listening on http://localhost:8080" << endl;
-    svr.listen("localhost", 8080);
+    svr.listen("0.0.0.0", 8080);
 
-    return 0;}
+    return 0;
+}

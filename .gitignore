@@ -1,0 +1,5 @@
+.qodo
+metro_backend.exe
+*.exe
+*.o
+*.obj
