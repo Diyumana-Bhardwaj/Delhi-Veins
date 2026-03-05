@@ -1,6 +1,14 @@
 
 <h1 align="center">🛤️ Delhi Veins - Metro Routing Engine</h1>
 <p align="center">
+
+![C++](https://img.shields.io/badge/C++-17-blue)
+![Algorithms](https://img.shields.io/badge/Algorithm-Dijkstra-green)
+![Backend](https://img.shields.io/badge/Backend-REST%20API-orange)
+![Deployment](https://img.shields.io/badge/Deployment-Docker-blue)
+
+</p>
+<p align="center">
   <em>A high-performance metro route planning system built using graph algorithms, optimized data structures, and concurrent backend architecture.
 
 The system models the Delhi Metro network as a weighted graph and exposes routing APIs capable of computing optimal routes in real time.
@@ -11,7 +19,20 @@ The project evolved from a basic graph exercise into a performance-aware backend
 <p align="center">
   <img src="assets/dashboard.png" width="80%" alt="Delhi Veins Banner"/>
 </p>
+---
+## 📚 Table of Contents
 
+- Live Demo
+- Project Highlights
+- System Architecture
+- Core Features
+- Benchmark Results
+- API Endpoints
+- Tech Stack
+- Deployment
+- Running Locally
+- Interface Preview
+- Key Learnings
 ---
 
 # 🌐 Live Demo
@@ -19,7 +40,7 @@ The project evolved from a basic graph exercise into a performance-aware backend
 Frontend
 
 ```
-https://<your-frontend-url>
+https://delhi-veins.onrender.com/
 ```
 
 API Example
@@ -51,7 +72,8 @@ API Example
 * 📂 **Custom Metro Dataset:** Curated and cleaned Delhi Metro station data using geolocation sources and structured CSV datasets for graph construction.
 
 * 🔄 **System Evolution:** The project originated as a **terminal-based C++ metro routing tool** and evolved into a **full web-enabled routing system** with integrated APIs and visualization.
-
+---
+> This project focuses on the intersection of **graph algorithms, backend system design, and performance-aware engineering**.
 ---
 ## 🧠 System Architecture
 
@@ -197,6 +219,10 @@ These files describe:
 ---
 
 # 🌍 API Endpoints
+### Base URL
+```
+https://delhi-veins.onrender.com/
+```
 
 ### Shortest Distance Route
 
@@ -262,7 +288,7 @@ Features:
 |----------------------|--------------------------------------------------|
 | Programming Language | C++, JavaScript (web version)                   |
 | GUI Framework        | HTML, CSS       |
-| Algorithms           | Dijkstra’s Algorithm, BFS                       |
+| Algorithms           | Algorithms | Dijkstra’s Algorithm, Graph Traversal                      |
 | Backend (Web ver.)   | `httplib` (C++ HTTP Server Client Library)      |
 | Data Format          | CSV (for stations & connections)                |
 
@@ -311,7 +337,7 @@ public/index.html
 ```
 
 
-## Project Glimpse
+## 📷 Application Preview
 
 ### Station Selection
 <img src="assets/dropdown-selection.jpg" width="70%" alt="Dropdown selection"/>
