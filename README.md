@@ -1,5 +1,6 @@
 
 <h1 align="center">🛤️ Delhi Veins - Metro Routing Engine</h1>
+
 <p align="center">
 
 ![C++](https://img.shields.io/badge/C++-17-blue)
@@ -22,17 +23,17 @@ The project evolved from a basic graph exercise into a performance-aware backend
 
 ## 📚 Table of Contents
 
-- Live Demo
-- Project Highlights
-- System Architecture
-- Core Features
-- Benchmark Results
-- API Endpoints
-- Tech Stack
-- Deployment
-- Running Locally
-- Interface Preview
-- Key Learnings
+- [Live Demo](#live-demo)
+- [Project Highlights](#-project-highlights)
+- [System Architecture](#-system-architecture)
+- [Core Features](#-core-features)
+- [Benchmark Results](#-benchmark-results)
+- [API Endpoints](#-api-endpoints)
+- [Tech Stack](#-tech-stack)
+- [Docker Deployment](#-docker-deployment)
+- [Running Locally](#-running-locally)
+- [Application Preview](#-application-preview)
+- [Key Learnings](#-key-learnings)
 ---
 
 # 🌐 Live Demo
