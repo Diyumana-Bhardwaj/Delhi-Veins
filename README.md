@@ -36,7 +36,7 @@ The project evolved from a basic graph exercise into a performance-aware backend
 - [Key Learnings](#-key-learnings)
 ---
 
-# 🌐 Live Demo
+## 🌐 Live Demo
 
 Frontend
 
@@ -103,7 +103,7 @@ C -->|JSON Response| B
 
 ---
 
-# ⚙️ Core Features
+## ⚙️ Core Features
 
 ### Graph-Based Routing
 
