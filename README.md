@@ -19,7 +19,7 @@ The project evolved from a basic graph exercise into a performance-aware backend
 <p align="center">
   <img src="assets/dashboard.png" width="80%" alt="Delhi Veins Banner"/>
 </p>
----
+
 ## 📚 Table of Contents
 
 - Live Demo
